@@ -77,3 +77,10 @@ def get_word(word: str) -> Word:
 def get_leaned_words(user_id: int) -> List[UserWord]:
     with Session(bind=engine) as session:
         return session.query(UserWord).filter(UserWord.user_id == user_id).filter(UserWord.learn_stage == 1)
+
+
+def delete_word(word: Word, user_id: int) -> None:
+    with Session(bind=engine) as session:
+        word_info = session.query(UserWord).filter(UserWord.user_id == user_id).filter(UserWord.word_id == word.id).one()
+        session.delete(word_info)
+        session.commit()

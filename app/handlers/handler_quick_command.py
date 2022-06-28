@@ -1,37 +1,35 @@
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
-from db.db_access import add_new_user, get_word, add_new_user_word, get_leaned_words, get_word_info
+from db.db_access import add_new_user, get_word, add_new_user_word, get_leaned_words, get_word_info, delete_word
 
 
-# async def cmd_show_learned_words(message: types.Message, state: FSMContext):
-#     await state.finish()
-#     msg = 'Изученные слова:\n'
-#     user_id = message.from_user.id
-#     learned_words = get_leaned_words(int(user_id))
-#     for learned_word in learned_words:
-#         word_info = get_word_info(learned_word)
-#         ms = f'{word_info.word} - {word_info.word_translate}'
-#         msg += ms
-#     await message.answer(msg)
-
-
-async def search_word(message: types.Message):
+async def cmd_show_learned_words(message: types.Message, state: FSMContext):
+    await state.finish()
+    msg = 'Изученные слова:\n'
     user_id = message.from_user.id
-    word = message.text.strip().lower()
-    data = get_word(word)
-    if len(data) != 0:
-        file_path = f'files/audio/{data[0].word}.mp3'
-        text_message = f'Cлово: {data[0].word} - {data[0].word_translate}\n' \
-                       f'Пример: {data[0].example_using}'
+    learned_words = get_leaned_words(int(user_id))
+    for learned_word in learned_words:
+        word_info = get_word_info(learned_word)
+        ms = f'{word_info.word} - {word_info.word_translate}'
+        msg += ms
+    await message.answer(msg)
+
+
+async def delete_user_word(message: types.Message):
+    word_info = message.text.replace('/del', '').strip().lower()
+
+    word = get_word(word_info)
+
+    if len(word) > 0:
         try:
-            await message.answer_voice(voice=open(file_path, "rb"), caption=text_message)
+            delete_word(word[0], int(message.from_user.id))
+            await message.answer('Слово удалено из изученных')
         except:
-            await message.answer('Что-то пошло не так...')
-        add_new_user_word(data[0], user_id, 0)
+            await message.answer('В вашем словаре нет таких слов')
     else:
-        await message.answer('В словаре нет такого слова')
+        await message.answer('В словаре нет таких слов')
 
 
 def register_handlers_quick(dp: Dispatcher):
-    dp.register_message_handler(search_word, lambda message: message.text, state="*")
-    # dp.register_message_handler(cmd_show_learned_words, lambda message: message.text.startswith('/learned'), state="*")
+    dp.register_message_handler(cmd_show_learned_words, commands='learned', state="*")
+    dp.register_message_handler(delete_user_word, lambda message: message.text.startswith('/del'), state="*")

@@ -8,6 +8,7 @@ from app.handlers.handler_common import register_handlers_common
 from app.handlers.handler_show_words import register_handlers_words
 from app.handlers.handler_training_words import register_handlers_training
 from app.handlers.handler_quick_command import register_handlers_quick
+from app.handlers.handler_show_dictionary import register_handlers_show_dict
 from db.db_model import init_db
 logger = logging.getLogger(__name__)
 
@@ -20,6 +21,7 @@ async def set_commands(bot: Bot):
     commands = [
         BotCommand(command="/words", description="Слова"),
         BotCommand(command="/training", description="Тренировка"),
+        BotCommand(command="/dict", description="Словарь"),
         BotCommand(command="/stop", description="Выход в главное меню")
     ]
     await bot.set_my_commands(commands)
@@ -44,6 +46,7 @@ async def main():
     register_handlers_common(dp)
     register_handlers_training(dp)
     register_handlers_quick(dp)
+    register_handlers_show_dict(dp)
 
     await set_commands(bot)
     await dp.start_polling()
