@@ -10,7 +10,7 @@ async def cmd_show_learned_words(message: types.Message, state: FSMContext):
     learned_words = get_leaned_words(int(user_id))
     for learned_word in learned_words:
         word_info = get_word_info(learned_word)
-        ms = f'{word_info.word} - {word_info.word_translate}'
+        ms = f'{word_info.word} - {word_info.word_translate}\n'
         msg += ms
     await message.answer(msg)
 
